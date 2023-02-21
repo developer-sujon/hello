@@ -274,35 +274,16 @@ exports.sendOpt = async (req, res) => {
 //verifyOtp
 exports.verifyOtp = async (req, res) => {
   const { email, otp } = req.params;
-   const otpQuery = { email: email, otp: otp };
-
-  let time = parseInt(Math.floor(new Date().getTime() / 1000));
+  const otpQuery = { email: email, otp: otp };
 
   try {
-    const optCount = await Otp.aggregate([{ $match: otpQuery }]);
+    const optCount = await OtpModel.aggregate([{ $match: otpQuery }]);
 
     if (!optCount.length > 0) {
       throw error("Invalid OTP Code", 400);
-     }
+    }
 
-    const isExpare = await OtpModel.aggregate([
-      {
-        $match: {
-          $and: [
-            {
-              expire: { $lte: 1658683139000000000 },
-            },
-            {
-              otp: otp,
-            },
-          ],
-        },
-      },
-    ]);
-    
-    throw error("Otp is Expare", 409);
-
-    const useOtp = await Otp.aggregate([
+    const useOtp = await OtpModel.aggregate([
       { $match: { ...otpQuery, status: 1 } },
     ]);
 
@@ -310,7 +291,7 @@ exports.verifyOtp = async (req, res) => {
       throw error("OTP Code Allready Use", 409);
     }
 
-    const updatedOtp = await Otp.updateOne(
+    const updatedOtp = await OtpModel.updateOne(
       otpQuery,
       { status: 1 },
       { new: true },
@@ -332,7 +313,7 @@ exports.passwordRecovery = async (req, res) => {
   };
 
   try {
-    const otpUseCount = await Otp.aggregate([{ $match: otpQuery }]);
+    const otpUseCount = await OtpModel.aggregate([{ $match: otpQuery }]);
 
     if (!otpUseCount.length > 0) {
       throw error("Invalid OTP Code", 400);
