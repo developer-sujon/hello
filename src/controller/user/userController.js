@@ -300,7 +300,7 @@ exports.verifyOtp = async (req, res) => {
       },
     ]);
 
-    res.json({ message: isExpare });
+    //res.json({ message: isExpare });
 
     // const useOtp = await Otp.aggregate([
     //   { $match: { ...otpQuery, status: 1 } },
@@ -316,7 +316,7 @@ exports.verifyOtp = async (req, res) => {
     //   { new: true },
     // );
 
-    // res.json({ message: "OTP Verify Successfull" });
+    res.json({ message: "OTP Verify Successfull" });
   } catch (e) {
     throw error(e.message, e.status);
   }
