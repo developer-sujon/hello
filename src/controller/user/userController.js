@@ -274,16 +274,16 @@ exports.sendOpt = async (req, res) => {
 //verifyOtp
 exports.verifyOtp = async (req, res) => {
   const { email, otp } = req.params;
-  // const otpQuery = { email: email, otp: otp };
+   const otpQuery = { email: email, otp: otp };
 
   let time = parseInt(Math.floor(new Date().getTime() / 1000));
 
   try {
-    // const optCount = await Otp.aggregate([{ $match: otpQuery }]);
+    const optCount = await Otp.aggregate([{ $match: otpQuery }]);
 
-    // if (!optCount.length > 0) {
-    //   throw error("Invalid OTP Code", 400);
-    // }
+    if (!optCount.length > 0) {
+      throw error("Invalid OTP Code", 400);
+     }
 
     const isExpare = await OtpModel.aggregate([
       {
@@ -299,22 +299,22 @@ exports.verifyOtp = async (req, res) => {
         },
       },
     ]);
+    
+    throw error("Otp is Expare", 409);
 
-    //res.json({ message: isExpare });
+    const useOtp = await Otp.aggregate([
+      { $match: { ...otpQuery, status: 1 } },
+    ]);
 
-    // const useOtp = await Otp.aggregate([
-    //   { $match: { ...otpQuery, status: 1 } },
-    // ]);
+    if (useOtp.length > 0) {
+      throw error("OTP Code Allready Use", 409);
+    }
 
-    // if (useOtp.length > 0) {
-    //   throw error("OTP Code Allready Use", 409);
-    // }
-
-    // const updatedOtp = await Otp.updateOne(
-    //   otpQuery,
-    //   { status: 1 },
-    //   { new: true },
-    // );
+    const updatedOtp = await Otp.updateOne(
+      otpQuery,
+      { status: 1 },
+      { new: true },
+    );
 
     res.json({ message: "OTP Verify Successfull" });
   } catch (e) {
